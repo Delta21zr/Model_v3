@@ -45,7 +45,8 @@ app.add_middleware(LimitarTamanoPayload)
 origenes_permitidos = [
     "https://model-v3-vcc7.onrender.com",
     "http://localhost:8000",
-    "http://127.0.0.1:8000"
+    "http://127.0.0.1:8000",
+    "https://front-predicciones.vercel.app"
 ]
 
 app.add_middleware(
