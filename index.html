@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oráculo de Conciertos | AI Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+
+        .container { 
+            width: 100%;
+            max-width: 700px; 
+            background: var(--card-bg); 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h2 { 
+            margin: 0 0 8px 0; 
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .header p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group { display: flex; flex-direction: column; }
+        
+        label { 
+            font-size: 13px; 
+            font-weight: 600; 
+            margin-bottom: 6px; 
+            color: var(--text-main);
+        }
+
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background-color: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 15px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover { background-color: var(--primary-hover); }
+
+        #resultado { 
+            margin-top: 25px; 
+            padding: 20px; 
+            border-radius: 12px; 
+            display: none; 
+            text-align: center; 
+            animation: fadeIn 0.4s ease;
+        }
+
+        #resultado h3 { margin: 0 0 10px 0; font-size: 20px; }
+        #resultado p { margin: 5px 0; font-size: 15px; }
+        #resultado b { font-weight: 700; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cargando { background-color: #f8fafc; border: 1px dashed #cbd5e1; color: var(--text-muted); }
+        .error { background-color: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; }
+        .veredicto-soldout { background-color: #fffbeb; border: 1px solid #fcd34d; color: #b45309; }
+        .veredicto-buena { background-color: #f0fdf4; border: 1px solid #86efac; color: #15803d; }
+        .veredicto-media { background-color: #fff7ed; border: 1px solid #fdba74; color: #c2410c; }
+        .veredicto-riesgo { background-color: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .container { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Modelo v3</h2>
+    </div>
+    
+    <form id="oraculoForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Artista Principal</label>
+                <input type="text" id="artista" list="lista-artistas" value="Oasis" placeholder="Escribe para buscar..." required>
+                <datalist id="lista-artistas"></datalist>
+            </div>
+            <div class="form-group">
+                <label>Recinto Oficial</label>
+                <input type="text" id="lugar" list="lista-lugares" value="Estadio GNP Seguros" placeholder="Escribe para buscar..." required>
+                <datalist id="lista-lugares"></datalist>
+            </div>
+            <div class="form-group">
+                <label>Capacidad Máxima</label>
+                <input type="number" id="capacidad_maxima" value="65000" required>
+            </div>
+            <div class="form-group">
+                <label>Precio Promedio (MXN)</label>
+                <input type="number" step="0.01" id="precio_promedio" value="3843.50" required>
+            </div>
+            <div class="form-group">
+                <label>Género Musical</label>
+                <select id="genero_principal" required>
+                    <option value="cat_rock">Rock</option>
+                    <option value="cat_pop">Pop</option>
+                    <option value="cat_urbano">Urbano</option>
+                    <option value="cat_electronica">Electrónica</option>
+                    <option value="cat_latin">Latino</option>
+                    <option value="cat_regional">Regional Mexicano</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Popularidad Spotify (0-100)</label>
+                <input type="number" id="popularidad_spotify" value="80" required>
+            </div>
+            <div class="form-group">
+                <label>Seguidores Spotify</label>
+                <input type="number" id="seguidores_spotify" value="13009031" required>
+            </div>
+            <div class="form-group">
+                <label>Seguidores Instagram</label>
+                <input type="number" id="seguidores_ig" value="4500000" required>
+            </div>
+        </div>
+
+        <button type="submit">Ejecutar Predicción</button>
+    </form>
+
+    <div id="resultado"></div>
+</div>
+
+<script>
+    // --- NUEVA LÓGICA: Cargar el historial al iniciar la página ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Hacemos fetch a tu nuevo endpoint
+            const response = await fetch('https://model-v3-vcc7.onrender.com/api/v1/opciones');
+            const data = await response.json();
+
+            // Llenamos la lista de artistas
+            const datalistArtistas = document.getElementById('lista-artistas');
+            data.artistas.forEach(artista => {
+                let option = document.createElement('option');
+                option.value = artista;
+                datalistArtistas.appendChild(option);
+            });
+
+            // Llenamos la lista de lugares
+            const datalistLugares = document.getElementById('lista-lugares');
+            data.lugares.forEach(lugar => {
+                let option = document.createElement('option');
+                option.value = lugar;
+                datalistLugares.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Error cargando el autocompletado:", error);
+        }
+    });
+
+    // --- LÓGICA ORIGINAL DE PREDICCIÓN ---
+    const form = document.getElementById('oraculoForm');
+    const divResultado = document.getElementById('resultado');
+
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault(); 
+
+        divResultado.style.display = 'block';
+        divResultado.className = 'cargando';
+        divResultado.innerHTML = '⏳ Calculando inferencia en el servidor...';
+
+        const payload = {
+            artista: document.getElementById('artista').value,
+            lugar: document.getElementById('lugar').value,
+            capacidad_maxima: parseInt(document.getElementById('capacidad_maxima').value),
+            precio_promedio: parseFloat(document.getElementById('precio_promedio').value),
+            genero_principal: document.getElementById('genero_principal').value,
+            popularidad_spotify: parseInt(document.getElementById('popularidad_spotify').value),
+            seguidores_spotify: parseInt(document.getElementById('seguidores_spotify').value),
+            seguidores_ig: parseInt(document.getElementById('seguidores_ig').value)
+        };
+
+        try {
+            const response = await fetch('https://model-v3-vcc7.onrender.com/api/v1/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(JSON.stringify(data.detail || "Error en el servidor"));
+
+            const veredicto = data.prediccion.veredicto_comercial;
+            let claseColor = 'veredicto-buena'; 
+            
+            if (veredicto === "SOLD OUT TOTAL") claseColor = 'veredicto-soldout';
+            else if (veredicto === "Entrada Media") claseColor = 'veredicto-media';
+            else if (veredicto === "Riesgo Alto") claseColor = 'veredicto-riesgo';
+
+            divResultado.className = claseColor;
+            divResultado.innerHTML = `
+                <h3>${veredicto}</h3>
+                <p>🎟️ Asistencia Estimada: <b>${data.prediccion.asistencia_estimada.toLocaleString()} personas</b></p>
+                <p>📊 Ocupación: <b>${(data.prediccion.porcentaje_ocupacion * 100).toFixed(2)}%</b></p>
+            `;
+
+        } catch (error) {
+            divResultado.className = 'error';
+            divResultado.innerHTML = `❌ Error de conexión: <br> <small>${error.message}</small>`;
+        }
+    });
+</script>
+
+</body>
+</html>

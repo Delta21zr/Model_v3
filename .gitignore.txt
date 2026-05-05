@@ -1,0 +1,7 @@
+# Archivos de entorno y cache
+__pycache__/
+.vscode/
+
+# Ignorar entornos virtuales (por si acaso)
+venv/
+env/
