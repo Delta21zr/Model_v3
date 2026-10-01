@@ -32,13 +32,29 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 class LimitarTamanoPayload(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         tamano_maximo = 1024 * 1024  # 1 MB
-        content_length = request.headers.get('content-length')
-        if content_length and int(content_length) > tamano_maximo:
-            return JSONResponse(
-                status_code=413, 
-                content={"detail": "Petición rechazada: El tamaño de los datos es excesivo."}
-            )
-        return await call_next(request)
+        bytes_read = 0
+        receive_ = request.receive
+
+        async def receive_wrapper():
+            nonlocal bytes_read
+            message = await receive_()
+            if message["type"] == "http.request":
+                bytes_read += len(message.get("body", b""))
+                if bytes_read > tamano_maximo:
+                    raise HTTPException(status_code=413, detail="Payload too large")
+            return message
+
+        request._receive = receive_wrapper
+
+        try:
+            return await call_next(request)
+        except HTTPException as e:
+            if e.status_code == 413:
+                return JSONResponse(
+                    status_code=413, 
+                    content={"detail": "Petición rechazada: El tamaño de los datos es excesivo."}
+                )
+            raise
 
 app.add_middleware(LimitarTamanoPayload)
 
@@ -66,8 +82,8 @@ historial = None
 features_names = None
 
 class EventoRequest(BaseModel):
-    artista: str = Field(..., min_length=1)
-    lugar: str = Field(..., min_length=1)
+    artista: str = Field(..., min_length=1, max_length=256)
+    lugar: str = Field(..., min_length=1, max_length=256)
     genero_principal: Literal["cat_rock", "cat_electronica", "cat_pop", "cat_latin", "cat_urbano", "cat_jazz", "cat_otros", "cat_sin_categoria"]
     capacidad_maxima: int = Field(..., ge=1, le=500000)
     precio_promedio: float = Field(..., ge=0.0, le=1000000.0)
@@ -108,7 +124,9 @@ async def predecir_asistencia(request: Request, evento: EventoRequest):
         hist_ocup_art = historial['artistas_ocup'][artista_upper]
     else:
         artistas_conocidos = list(historial['artistas_ocup'].keys())
-        posibles_matches = difflib.get_close_matches(artista_upper, artistas_conocidos, n=1, cutoff=0.8)
+        posibles_matches = []
+        if len(artista_upper) <= 256:
+            posibles_matches = difflib.get_close_matches(artista_upper, artistas_conocidos, n=1, cutoff=0.8)
         
         if posibles_matches:
             raise HTTPException(
@@ -122,7 +140,9 @@ async def predecir_asistencia(request: Request, evento: EventoRequest):
         hist_ocup_lug = historial['lugares_ocup'][lugar_upper]
     else:
         recintos_conocidos = list(historial['lugares_ocup'].keys())
-        posibles_matches = difflib.get_close_matches(lugar_upper, recintos_conocidos, n=1, cutoff=0.8)
+        posibles_matches = []
+        if len(lugar_upper) <= 256:
+            posibles_matches = difflib.get_close_matches(lugar_upper, recintos_conocidos, n=1, cutoff=0.8)
         
         if posibles_matches:
             raise HTTPException(
