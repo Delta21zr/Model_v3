@@ -8,6 +8,10 @@ import pandas as pd
 import xgboost as xgb
 import json
 import difflib
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -61,8 +65,6 @@ app.add_middleware(LimitarTamanoPayload)
 # B. Defensa CORS (Solo tu URL de Render y local)
 origenes_permitidos = [
     "https://model-v3-vcc7.onrender.com",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
     "https://front-predicciones.vercel.app"
 ]
 
@@ -71,7 +73,7 @@ app.add_middleware(
     allow_origins=origenes_permitidos, 
     allow_credentials=True,
     allow_methods=["GET", "POST"], # Solo lo necesario
-    allow_headers=["*"],
+    allow_headers=["Authorization", "Content-Type"], # Sin comodines
 )
 
 # ==========================================
@@ -105,7 +107,7 @@ def cargar_modelo():
             features_names = json.load(f)
             
     except Exception as e:
-        print(f"Error al cargar archivos: {e}")
+        logger.error(f"Error al cargar archivos: {e}")
 
 # ==========================================
 # 4. RUTAS (ENDPOINTS)
