@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware # <-- NUEVO
 from fastapi.responses import FileResponse, JSONResponse # <-- NUEVO
+from typing import Literal
 from pydantic import BaseModel, Field
 import pandas as pd
 import xgboost as xgb
@@ -67,7 +68,7 @@ features_names = None
 class EventoRequest(BaseModel):
     artista: str = Field(..., min_length=1)
     lugar: str = Field(..., min_length=1)
-    genero_principal: str = Field(..., min_length=1)
+    genero_principal: Literal["cat_rock", "cat_electronica", "cat_pop", "cat_latin", "cat_urbano", "cat_jazz", "cat_otros", "cat_sin_categoria"]
     capacidad_maxima: int = Field(..., ge=1, le=500000)
     precio_promedio: float = Field(..., ge=0.0, le=1000000.0)
     popularidad_spotify: int = Field(..., ge=0, le=100)
@@ -140,7 +141,8 @@ async def predecir_asistencia(request: Request, evento: EventoRequest):
     if 'seguidores' in row: row['seguidores'] = evento.seguidores_spotify
     if 'Seguidores Instagram' in row: row['Seguidores Instagram'] = evento.seguidores_ig
     
-    if evento.genero_principal in row:
+    generos_permitidos = {"cat_rock", "cat_electronica", "cat_pop", "cat_latin", "cat_urbano", "cat_jazz", "cat_otros", "cat_sin_categoria"}
+    if evento.genero_principal in generos_permitidos and evento.genero_principal in row:
         row[evento.genero_principal] = 1.0
 
     # Predicción y reglas de negocio

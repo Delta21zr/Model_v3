@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 8000
 
 # 7. El comando mágico para encender el servidor al prender la caja
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips=*"]
