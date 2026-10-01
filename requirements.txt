@@ -1,7 +1,7 @@
-fastapi
-uvicorn
-pandas
-xgboost
-pydantic
-scikit-learn
-slowapi
+fastapi==0.136.1
+uvicorn==0.51.0
+pandas==2.3.3
+xgboost==3.2.0
+pydantic==2.13.3
+scikit-learn==1.7.2
+slowapi==0.1.9

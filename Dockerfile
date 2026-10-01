@@ -14,6 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 5. Copiar todo el código y los modelos (.json) a la caja
 COPY . .
 
+RUN adduser --disabled-password --gecos '' appuser && chown -R appuser:appuser /app
+USER appuser
+
+
 # 6. Exponer el puerto por el que hablará la API
 EXPOSE 8000
 

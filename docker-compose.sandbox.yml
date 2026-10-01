@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  audit-sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile.sandbox
+    volumes:
+      - .:/app:ro
+    # Opcional: Si quieres ser estricto con la seguridad, puedes quitarle el acceso
+    # a internet al contenedor descomentando la siguiente línea (pero hazlo DESPUÉS
+    # de haber instalado el skill y las dependencias de Python).
+    network_mode: none
