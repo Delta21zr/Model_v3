@@ -65,7 +65,8 @@ app.add_middleware(LimitarTamanoPayload)
 # B. Defensa CORS (Solo tu URL de Render y local)
 origenes_permitidos = [
     "https://model-v3-vcc7.onrender.com",
-    "https://front-predicciones.vercel.app"
+    "https://front-predicciones.vercel.app",
+    "https://model-v3-1-aloz.onrender.com"
 ]
 
 app.add_middleware(
