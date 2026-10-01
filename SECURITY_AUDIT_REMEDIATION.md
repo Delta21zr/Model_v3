@@ -6,7 +6,7 @@ Las correcciones han sido clasificadas en 4 fases, priorizando desde vulnerabili
 
 ---
 
-## 🔴 Fase 1: Remediación Crítica (Acción Inmediata)
+## Fase 1: Remediación Crítica (Acción Inmediata)
 **Objetivo:** Parchear vulnerabilidades de alta criticidad que permitían la manipulación de las predicciones y el colapso del servicio en la nube (compartido por múltiples clientes).
 
 * **Prevención de Inyección ML (Alta)**
@@ -21,7 +21,7 @@ Las correcciones han sido clasificadas en 4 fases, priorizando desde vulnerabili
 
 ---
 
-## 🟠 Fase 2: Disponibilidad y Resiliencia
+## Fase 2: Disponibilidad y Resiliencia
 **Objetivo:** Mitigar vectores de ataque orientados a Denegación de Servicio (DoS) que explotan el agotamiento de recursos (CPU y Memoria RAM).
 
 * **Mitigación de DoS por CPU en Búsquedas (Media)**
@@ -36,7 +36,7 @@ Las correcciones han sido clasificadas en 4 fases, priorizando desde vulnerabili
 
 ---
 
-## 🟡 Fase 3: Higiene de Infraestructura
+## Fase 3: Higiene de Infraestructura
 **Objetivo:** Reducir la superficie de exposición y endurecer el contenedor de despliegue mediante el principio de mínimo privilegio (Defensa en Profundidad).
 
 * **Remoción de Privilegios Administrativos (Baja)**
@@ -56,7 +56,7 @@ Las correcciones han sido clasificadas en 4 fases, priorizando desde vulnerabili
 
 ---
 
-## 🟢 Fase 4: Hardening y Deuda Técnica
+## Fase 4: Hardening y Deuda Técnica
 **Objetivo:** Configurar de forma profesional las capas base de las integraciones de red, almacenamiento de logs y secretos.
 
 * **CORS Seguro (Media)**
