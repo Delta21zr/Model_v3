@@ -74,7 +74,9 @@ origenes_permitidos = [
     # Dominios de produccion especificos
     "https://model-v3-vcc7.onrender.com",
     "https://front-predicciones.vercel.app",
-    "https://model-v3-1-aloz.onrender.com"
+    "https://model-v3-1-aloz.onrender.com",
+    # GitHub Pages oficial
+    "https://delta21zr.github.io"
 ]
 
 app.add_middleware(
